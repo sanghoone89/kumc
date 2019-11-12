@@ -1,8 +1,8 @@
-export function makeMember(username, nickname, email, position) {
+export function makeMember(username, nickname, phonenumber, position) {
     const requestParam = {
         "username": username,
         "nickname": nickname,
-        "email": email,
+        "phonenumber": phonenumber,
         "position": position
     }
 

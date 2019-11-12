@@ -18,7 +18,7 @@ class UsersTable extends React.Component {
       { name: "memberid", label: "번호" }, //options: { filter: false, sort: false, display: false } },
       { name: "username", label: "이름" },
       { name: "nickname", label: "닉네임" },
-      { name: "email", label: "이메일" },
+      { name: "phonenumber", label: "휴대폰 번호" },
       { name: "position", label: "직책" }
     ]
     const options = {

@@ -11,12 +11,12 @@ const MEMBER_UPDATE = 'members/MEMBER_UPDATE';
 const MEMBER_DELETE = 'members/MEMBER_DELETE';
 
 function insertMember(values) {
-    const body = makeMember(values.username, values.nickname, values.email, values.position);
+    const body = makeMember(values.username, values.nickname, values.phonenumber, values.position);
     return axios.post('/api/members', body);
 }
 
 function updateMember(values) {
-    const body = makeMember(values.username, values.nickname, values.email, values.position);
+    const body = makeMember(values.username, values.nickname, values.phonenumber, values.position);
     return axios.patch(`/api/members/${values.memberid}`, body);
 }
 

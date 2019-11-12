@@ -22,7 +22,7 @@ const UserList = (props) => {
     memberid: '',
     username: '',
     nickname: '',
-    email: '',
+    phonenumber: '',
     position: ''
   });
 

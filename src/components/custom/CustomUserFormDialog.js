@@ -56,7 +56,7 @@ const CustomUserFormDialog = props => {
         memberid: memberProps.rowData[0],
         username: memberProps.rowData[1],
         nickname: memberProps.rowData[2],
-        email: memberProps.rowData[3],
+        phonenumber: memberProps.rowData[3],
         position: memberProps.rowData[4]
     });
     const [inputNameEl, setInputNameEl] = useState(() => createRef());
@@ -199,16 +199,15 @@ const CustomUserFormDialog = props => {
                     />
                     <TextField
                         margin="dense"
-                        id="email"
-                        label={"이메일"}
-                        type="email"
+                        id="phonenumber"
+                        label={"휴대폰 번호"}
                         fullWidth
-                        onChange={handleChange('email')}
-                        placeholder={"이메일을 입력해주세요"}
+                        onChange={handleChange('phonenumber')}
+                        placeholder={"휴대폰 번호를 입력해주세요"}
                         InputLabelProps={{
                             shrink: true
                         }}
-                        defaultValue={values.email}
+                        defaultValue={values.phonenumber}
                     />
                     <TextField
                         margin="dense"
