@@ -10,7 +10,7 @@ import moment from 'moment';
 import './main.scss';
 import FormDialog from './components/Dialog';
 import { connect } from 'react-redux';
-import {bindActionCreators} from  'redux';
+import { bindActionCreators } from 'redux';
 import * as editorInfoActions from 'store/modules/editor';
 const useStyles = makeStyles(theme => ({
   root: {
@@ -23,6 +23,7 @@ class Dashboard extends React.Component {
 
   state = {
     open: false,
+    argDate: new Date(),
     calendarWeekends: true,
     calendarEvents: [
       // initial event data
@@ -55,7 +56,8 @@ class Dashboard extends React.Component {
   componentDidMount = () => {};
   handleDateClick = arg => {
     this.setState(prevState => ({
-      open: true
+      open: true,
+      argDate: arg.date
     }));
     /* if (
       window.confirm('Would you like to add an event to ' + arg.dateStr + ' ?')
@@ -72,38 +74,45 @@ class Dashboard extends React.Component {
     } */
   };
 
-  handleDateClickCallback = async(name, type, isCheck, startDate, endDate) => {
+  handleDateClickCallback = async (name, type, isCheck, startDate, endDate) => {
     console.log(name, type, isCheck, startDate, endDate);
-    const {EditorInfoActions} = this.props;
-    const temp = {
-      'name': name,
-      'vacationType': type,
-      'officialHoliday': isCheck,
-      'startDate': startDate,
-      'endDate': endDate,
-      'title' : name+'휴가',
-      'body': 'test1'
-    }
-    try{
-      EditorInfoActions.reqWritePost({vacation: temp});
-    }catch(e){
+    const { EditorInfoActions } = this.props;
+    const temp = [
+      {
+        name: name,
+        vacationType: type,
+        officialHoliday: isCheck,
+        startDate: startDate,
+        endDate: endDate,
+        title: name + '휴가',
+        body: 'test1'
+      }
+    ];
+    try {
+      EditorInfoActions.reqWritePost({ vacation: temp });
+    } catch (e) {
       console.log(e);
     }
-  }
+  };
   handleClose = () => {
     this.setState(prevState => ({
       open: false
     }));
   };
   render() {
-    const { calendarEvents, open } = this.state;
+    const { calendarEvents, open, argDate } = this.state;
     const { handleClose, handleDateClickCallback } = this;
     console.log('calendarEvents :', calendarEvents);
     return (
       <div className="demo-app">
         <div className="demo-app-top"></div>
         <div className="demo-app-calendar">
-          <FormDialog open={open} handleClose={handleClose} callback={handleDateClickCallback}/>
+          <FormDialog
+            open={open}
+            argDate={argDate}
+            handleClose={handleClose}
+            callback={handleDateClickCallback}
+          />
           <FullCalendar
             defaultView="dayGridMonth"
             header={{
@@ -137,10 +146,10 @@ class Dashboard extends React.Component {
 }
 
 export default connect(
-  (state) => ({
+  state => ({
     editorInfo: state.editor
   }),
-  (dispatch) => ({
+  dispatch => ({
     EditorInfoActions: bindActionCreators(editorInfoActions, dispatch)
   })
 )(Dashboard);

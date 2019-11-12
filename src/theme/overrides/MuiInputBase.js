@@ -3,6 +3,9 @@ export default {
     fontFamily: "'Noto Sans KR', sans-serif"
   },
   input: {
-    color: 'black'
-  }
+    color: 'black',
+    padding: '6px 0px 12px',
+    fontSize: '1.01rem'
+  },
+
 };

@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { withStyles, makeStyles } from '@material-ui/core/styles';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField';
@@ -64,8 +64,7 @@ const useStyles = makeStyles(theme => ({
     justify: 'space-around'
     /* width: '60%', */
     /* display:'block' */
-  },
-  
+  }
 }));
 const localeMap = {
   en: enLocale,
@@ -90,6 +89,7 @@ const DialogTitle = withStyles(styles)(props => {
 });
 
 export default function FormDialog(props) {
+  debugger;
   const classes = useStyles();
   const [open, setOpen] = React.useState(props.open);
   const [maxWidth, setMaxWidth] = React.useState('xs');
@@ -98,15 +98,16 @@ export default function FormDialog(props) {
     type: 'all'
   });
   const [check, setCheck] = React.useState({
-    checkedB: false,
+    checkedB: false
   });
 
   const getLang = props.lang || 'ko';
   let pickerFormat = 'yyyy-MM-dd';
   if (getLang === 'en') pickerFormat = 'MM-dd-yyyy';
 
-  const [selectedStartDate, handleStartDateChange] = useState(new Date());
-  const [selectedEndDate, handleEndDateChange] = useState(new Date());
+  const [selectedStartDate, handleStartDateChange] = useState(props.argDate);
+  console.log('selectedStartDate :', selectedStartDate, props.argDate);
+  const [selectedEndDate, handleEndDateChange] = useState(props.argDate);
   const [formatDate] = useState(pickerFormat);
   const [locale] = useState(getLang);
 
@@ -128,8 +129,19 @@ export default function FormDialog(props) {
     console.log('check :', check.checkedB);
     console.log('selectedStartDate :', selectedStartDate);
     console.log('selectedEndDate :', selectedEndDate);
-    props.callback(values.name, values.type, check.checkedB, selectedStartDate, selectedEndDate);
-  }
+    props.callback(
+      values.name,
+      values.type,
+      check.checkedB,
+      selectedStartDate,
+      selectedEndDate
+    );
+  };
+
+  useEffect(() => {
+    handleStartDateChange(props.argDate);
+  }, [props.argDate, selectedStartDate]);
+
   return (
     <div>
       <Dialog
@@ -142,8 +154,7 @@ export default function FormDialog(props) {
           Modal title
         </DialogTitle>
         <DialogContent dividers>
-          <DialogContentText>
-          </DialogContentText>
+          <DialogContentText></DialogContentText>
           <form className={classes.form} noValidate>
             <FormControl className={classes.formControl}>
               <TextField
@@ -173,53 +184,55 @@ export default function FormDialog(props) {
               </Select>
             </FormControl>
             <FormControl className={classes.formControlLabel}>
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={check.checkedB}
-                  onChange={handleCheckChange('checkedB')}
-                  value="checkedB"
-                  color="primary"
-                />
-              }
-              label="공가(결혼,예비군, 회갑 등)"
-            />
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={check.checkedB}
+                    onChange={handleCheckChange('checkedB')}
+                    value="checkedB"
+                    color="primary"
+                  />
+                }
+                label="공가(결혼,예비군, 회갑 등)"
+              />
             </FormControl>
             <FormControl className={classes.formMarginTopSpacingZero}>
-            <MuiPickersUtilsProvider utils={DateFnsUtils} locale={localeMap[locale]}>
-      <Grid container justify="space-between">
-        <KeyboardDatePicker
-          clearable
-          style={{
-            width: 150,
-            minWidth: 150,
-            marginLeft: 0,
-            marginRight: 8,
-            marginTop: 8
-          }}
-          label={'휴가 시작날짜'}
-          value={selectedStartDate}
-          onChange={date => handleStartDateChange(date)}
-          format={formatDate}
-        />
+              <MuiPickersUtilsProvider
+                utils={DateFnsUtils}
+                locale={localeMap[locale]}>
+                <Grid container justify="space-between">
+                  <KeyboardDatePicker
+                    clearable
+                    style={{
+                      width: 150,
+                      minWidth: 150,
+                      marginLeft: 0,
+                      marginRight: 8,
+                      marginTop: 8
+                    }}
+                    label={'휴가 시작날짜'}
+                    value={selectedStartDate}
+                    onChange={date => handleStartDateChange(date)}
+                    format={formatDate}
+                  />
 
-        <KeyboardDatePicker
-          clearable
-          style={{
-            width: 150,
-            minWidth: 150,
-            marginLeft: 8,
-            marginRight: 0,
-            marginTop: 8
-          }}
-          label={'휴가 종료날짜'}
-          value={selectedEndDate}
-          minDate={selectedStartDate}
-          onChange={date => handleEndDateChange(date)}
-          format={formatDate}
-        />
-      </Grid>
-    </MuiPickersUtilsProvider>
+                  <KeyboardDatePicker
+                    clearable
+                    style={{
+                      width: 150,
+                      minWidth: 150,
+                      marginLeft: 8,
+                      marginRight: 0,
+                      marginTop: 8
+                    }}
+                    label={'휴가 종료날짜'}
+                    value={selectedEndDate}
+                    minDate={selectedStartDate}
+                    onChange={date => handleEndDateChange(date)}
+                    format={formatDate}
+                  />
+                </Grid>
+              </MuiPickersUtilsProvider>
             </FormControl>
           </form>
         </DialogContent>
