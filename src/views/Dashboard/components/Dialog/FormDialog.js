@@ -27,6 +27,8 @@ import {
   MuiPickersUtilsProvider,
   KeyboardDatePicker
 } from '@material-ui/pickers';
+import { getNowDate } from 'utils/kumcUtils';
+
 const styles = theme => ({
   root: {
     margin: 0,
@@ -89,13 +91,14 @@ const DialogTitle = withStyles(styles)(props => {
 });
 
 export default function FormDialog(props) {
-  debugger;
   const classes = useStyles();
   const [open, setOpen] = React.useState(props.open);
-  const [maxWidth, setMaxWidth] = React.useState('xs');
+  const [maxWidth, setMaxWidth] = React.useState('sm');
   const [values, setValues] = React.useState({
     name: '',
-    type: 'all'
+    type: 'all',
+    title: '',
+    body: ''
   });
   const [check, setCheck] = React.useState({
     checkedB: false
@@ -106,17 +109,17 @@ export default function FormDialog(props) {
   if (getLang === 'en') pickerFormat = 'MM-dd-yyyy';
 
   const [selectedStartDate, handleStartDateChange] = useState(props.argDate);
-  console.log('selectedStartDate :', selectedStartDate, props.argDate);
   const [selectedEndDate, handleEndDateChange] = useState(props.argDate);
   const [formatDate] = useState(pickerFormat);
   const [locale] = useState(getLang);
 
   const handleClose = () => {
+    setValues({ ...values, name: '', type: 'all', title: '', body: '' });
+    setCheck({ ...values, checkedB: false });
     props.handleClose();
   };
 
   const handleChange = name => event => {
-    console.log('event.target.name :', event.target.name, name);
     setValues({ ...values, [name]: event.target.value });
   };
   const handleCheckChange = name => event => {
@@ -125,22 +128,34 @@ export default function FormDialog(props) {
 
   const handleSubmit = event => {
     event.preventDefault();
-    console.log('values :', values);
-    console.log('check :', check.checkedB);
-    console.log('selectedStartDate :', selectedStartDate);
-    console.log('selectedEndDate :', selectedEndDate);
+    //console.log('values :', values);
+    //console.log('check :', check.checkedB);
+    //console.log('selectedStartDate :', selectedStartDate);
+    //console.log('selectedEndDate :', selectedEndDate);
+
     props.callback(
       values.name,
       values.type,
+      values.body,
       check.checkedB,
       selectedStartDate,
-      selectedEndDate
+      selectedEndDate,
+      getLang
     );
+    handleClose();
   };
 
-  useEffect(() => {
+  /*useEffect(() => {
     handleStartDateChange(props.argDate);
-  }, [props.argDate, selectedStartDate]);
+  }, [props.argDate, selectedStartDate]);*/
+  useEffect(() => {
+    return () => {
+      debugger;
+      console.log('cleanup');
+      setValues({ ...values, name: '', type: 'all', title: '', body: '' });
+      setCheck({ ...values, checkedB: false });
+    }
+  }, [])
 
   return (
     <div>
@@ -182,6 +197,20 @@ export default function FormDialog(props) {
                 <MenuItem value="am">오전</MenuItem>
                 <MenuItem value="pm">오후</MenuItem>
               </Select>
+            </FormControl>
+            <FormControl className={classes.formControl}>
+              <TextField
+                id="standard-body"
+                label="휴가 사유"
+                className={classes.textField}
+                value={values.body}
+                onChange={handleChange('body')}
+                margin="none"
+                InputLabelProps={{
+                  shrink: true
+                }}
+                placeholder="ex) 개인 휴가"
+              />
             </FormControl>
             <FormControl className={classes.formControlLabel}>
               <FormControlLabel

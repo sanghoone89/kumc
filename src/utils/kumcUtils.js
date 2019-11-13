@@ -69,3 +69,19 @@ export function getNowDate(locale, date) {
 
   return date;
 }
+
+export function getFullYear(locale, date) {
+  if (date === null) return date;
+  let yyyy = date.getFullYear();
+
+  return yyyy + '년';
+}
+
+export function getMonth(locale, date) {
+  if (date === null) return date;
+  let mm = date.getMonth() + 1;
+  if (mm < 10) {
+    mm = '0' + mm;
+  }
+  return mm + '월';
+}

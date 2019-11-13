@@ -5,19 +5,32 @@ import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction'; // needed for dayClick
-import { localTimeToUtc } from 'utils/kumcUtils';
+import { localTimeToUtc, getFullYear, getMonth, getNowDate } from 'utils/kumcUtils';
 import moment from 'moment';
 import './main.scss';
 import FormDialog from './components/Dialog';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import * as editorInfoActions from 'store/modules/editor';
+import * as vacationInfoActions from 'store/modules/vacationInfo';
+import { withSnackbar } from 'notistack';
+import { withStyles } from "@material-ui/core/styles";
 const useStyles = makeStyles(theme => ({
   root: {
     padding: theme.spacing(4)
+  },
+  snackbar: {
+    fontFamily: "'Noto Sans KR', sans-serif!important"
   }
 }));
 
+const style = theme => ({
+  root: {
+    padding: theme.spacing(4)
+  },
+  snackbar: {
+    fontFamily: "'Noto Sans KR', sans-serif!important"
+  }
+});
 class Dashboard extends React.Component {
   calendarComponentRef = React.createRef();
 
@@ -53,8 +66,9 @@ class Dashboard extends React.Component {
       }
     ]
   };
-  componentDidMount = () => {};
+  componentDidMount = () => { };
   handleDateClick = arg => {
+    console.log(arg);
     this.setState(prevState => ({
       open: true,
       argDate: arg.date
@@ -74,22 +88,40 @@ class Dashboard extends React.Component {
     } */
   };
 
-  handleDateClickCallback = async (name, type, isCheck, startDate, endDate) => {
-    console.log(name, type, isCheck, startDate, endDate);
-    const { EditorInfoActions } = this.props;
-    const temp = [
-      {
-        name: name,
-        vacationType: type,
-        officialHoliday: isCheck,
-        startDate: startDate,
-        endDate: endDate,
-        title: name + '휴가',
-        body: 'test1'
-      }
-    ];
+  handleDateClickCallback = async (name, type, body, isCheck, startDate, endDate, getLang) => {
+    const { VacationInfoActions, classes } = this.props;
+    const values =
+    {
+      username: name,
+      vacationtype: type,
+      officialholiday: (isCheck === true) ? "Y" : "N",
+      startdate: getNowDate(getLang, startDate),
+      enddate: getNowDate(getLang, endDate),
+      title: getFullYear(getLang, startDate) + getMonth(getLang, startDate) + '-' + name + '휴가',
+      body: body
+      //body: getNowDate(getLang, startDate) + "~" + getNowDate(getLang, endDate)
+    };
     try {
-      EditorInfoActions.reqWritePost({ vacation: temp });
+      const successMsg = name + '님의 휴가가 등록되었습니다';
+      const failMsg = '휴가 등록이 실패하였습니다(' + name + ')';
+      VacationInfoActions.reqInsertVacation({ values })
+        .then((result) => {
+          if (result.data === 1) {
+            this.props.enqueueSnackbar(successMsg, {
+              variant: 'success',
+              classes: {
+                root: classes.snackbar
+              }
+            });
+          } else {
+            this.props.enqueueSnackbar(failMsg, {
+              variant: 'warning',
+              classes: {
+                root: classes.snackbar
+              }
+            });
+          }
+        });
     } catch (e) {
       console.log(e);
     }
@@ -102,7 +134,7 @@ class Dashboard extends React.Component {
   render() {
     const { calendarEvents, open, argDate } = this.state;
     const { handleClose, handleDateClickCallback } = this;
-    console.log('calendarEvents :', calendarEvents);
+    //console.log('calendarEvents :', calendarEvents);
     return (
       <div className="demo-app">
         <div className="demo-app-top"></div>
@@ -127,17 +159,17 @@ class Dashboard extends React.Component {
             dateClick={this.handleDateClick}
             locale={'ko'}
             timeZone={'local'}
-            /* views={{
-              dayGridMonth: {
-                // name of view
-                titleFormat: {
-                  year: 'numeric',
-                  month: '1-digit',
-                  day: '2-digit'
-                }
-                // other view-specific options here
+          /* views={{
+            dayGridMonth: {
+              // name of view
+              titleFormat: {
+                year: 'numeric',
+                month: '1-digit',
+                day: '2-digit'
               }
-            }} */
+              // other view-specific options here
+            }
+          }} */
           />
         </div>
       </div>
@@ -147,9 +179,9 @@ class Dashboard extends React.Component {
 
 export default connect(
   state => ({
-    editorInfo: state.editor
+    vacationInfo: state.vacationInfo
   }),
   dispatch => ({
-    EditorInfoActions: bindActionCreators(editorInfoActions, dispatch)
+    VacationInfoActions: bindActionCreators(vacationInfoActions, dispatch)
   })
-)(Dashboard);
+)(withStyles(style, { withTheme: true })(withSnackbar(Dashboard)));
