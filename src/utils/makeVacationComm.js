@@ -1,7 +1,6 @@
 export function makeVacation(vacation) {
     const requestParam = {
         "username": vacation.values.username,
-        "phonenumber": vacation.values.phonenumber,
         "vacationtype": vacation.values.vacationtype,
         "officialholiday": vacation.values.officialholiday,
         "startdate": vacation.values.startdate,

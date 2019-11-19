@@ -5,7 +5,7 @@ import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction'; // needed for dayClick
-import { localTimeToUtc, getFullYear, getMonth, getNowDate } from 'utils/kumcUtils';
+import { localTimeToUtc, getFullYear, getMonth, getNowDate, getNowDateStart, getNowDateEnd, getTitle } from 'utils/kumcUtils';
 import moment from 'moment';
 import './main.scss';
 import FormDialog from './components/Dialog';
@@ -14,6 +14,7 @@ import { bindActionCreators } from 'redux';
 import * as vacationInfoActions from 'store/modules/vacationInfo';
 import { withSnackbar } from 'notistack';
 import { withStyles } from "@material-ui/core/styles";
+import googleCalendarPlugin from '@fullcalendar/google-calendar';
 const useStyles = makeStyles(theme => ({
   root: {
     padding: theme.spacing(4)
@@ -33,78 +34,56 @@ const style = theme => ({
 });
 class Dashboard extends React.Component {
   calendarComponentRef = React.createRef();
-
   state = {
     open: false,
-    argDate: new Date(),
+    openInfo: false,
     calendarWeekends: true,
-    calendarEvents: [
-      // initial event data
-      {
-        title: 'Event Nowzz',
-        start: new Date(Date.parse(new Date()) - 7 * 1000 * 60 * 60 * 24),
-        end: new Date(),
-        //end: moment(new Date()).format('YYYY/MM/DD hh:mm:ss'),
-        allDay: false
-      },
-      {
-        // not visible
-        id: 1,
-        title: 'event 1',
-        start: '2019-10-08T20:00:00+09:00', //-9 빼면 로컬
-        end: '2019-10-09T11:00:00+09:00',
-        allDay: false
-      },
-      {
-        // not visible
-        id: 2,
-        title: 'asdf',
-        start: '2019-10-07',
-        end: '2019-10-08T00:00:00.000Z',
-        timeZone: 'local',
-        allDay: false
-      }
-    ]
   };
-  componentDidMount = () => { };
-  handleDateClick = arg => {
-    console.log(arg);
-    this.setState(prevState => ({
-      open: true,
-      argDate: arg.date
-    }));
-    /* if (
-      window.confirm('Would you like to add an event to ' + arg.dateStr + ' ?')
-    ) {
-      this.setState({
-        // add new event data
-        calendarEvents: this.state.calendarEvents.concat({
-          // creates a new array
-          title: 'New Event',
-          start: arg.date,
-          allDay: arg.allDay
-        })
-      });
-    } */
+  componentDidMount = () => {
+    this.handleVacationList();
   };
 
-  handleDateClickCallback = async (name, type, body, isCheck, startDate, endDate, getLang) => {
+  handleVacationList = () => {
+    const { VacationInfoActions } = this.props;
+    VacationInfoActions.reqGetVacationListInfo();
+  }
+  handleDateClick = async (arg) => {
+    const { VacationInfoActions } = this.props;
+    console.log(arg);
+    await VacationInfoActions.setStartInit({
+      'username': '',
+      'vacationtype': 'all',
+      'officialholiday': false,
+      'startdate': arg.date,
+      'enddate': arg.date,
+      'title': '',
+      'body': ''
+    });
+    this.setState(prevState => ({
+      open: true
+    }));
+    /*VacationInfoActions.reqArgDate({ argDate: arg.date });
+    this.setState(prevState => ({
+      open: true
+    }))*/
+  };
+
+  handleDateClickCallback = async (id, name, type, body, isCheck, startDate, endDate, getLang) => {
     const { VacationInfoActions, classes } = this.props;
     const values =
     {
       username: name,
       vacationtype: type,
       officialholiday: (isCheck === true) ? "Y" : "N",
-      startdate: getNowDate(getLang, startDate),
-      enddate: getNowDate(getLang, endDate),
-      title: getFullYear(getLang, startDate) + getMonth(getLang, startDate) + '-' + name + '휴가',
+      startdate: getNowDateStart(getLang, startDate, type),
+      enddate: getNowDateEnd(getLang, endDate, type),
+      title: getTitle(type, name),
       body: body
-      //body: getNowDate(getLang, startDate) + "~" + getNowDate(getLang, endDate)
     };
     try {
       const successMsg = name + '님의 휴가가 등록되었습니다';
       const failMsg = '휴가 등록이 실패하였습니다(' + name + ')';
-      VacationInfoActions.reqInsertVacation({ values })
+      await VacationInfoActions.reqInsertVacation({ values })
         .then((result) => {
           if (result.data === 1) {
             this.props.enqueueSnackbar(successMsg, {
@@ -122,6 +101,47 @@ class Dashboard extends React.Component {
             });
           }
         });
+      this.handleVacationList();
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
+  handleDateUpdateCallback = async (id, name, type, body, isCheck, startDate, endDate, getLang) => {
+    const { VacationInfoActions, classes } = this.props;
+    const values =
+    {
+      vacationid: id,
+      username: name,
+      vacationtype: type,
+      officialholiday: (isCheck === true) ? "Y" : "N",
+      startdate: getNowDateStart(getLang, startDate, type),
+      enddate: getNowDateEnd(getLang, endDate, type),
+      title: getTitle(type, name),
+      body: body
+    };
+    try {
+      const successMsg = name + '님의 휴가가 수정되었습니다';
+      const failMsg = '휴가 수정이 실패하였습니다(' + name + ')';
+      await VacationInfoActions.reqUpdateVacation({ values })
+        .then((result) => {
+          if (result.data === true) {
+            this.props.enqueueSnackbar(successMsg, {
+              variant: 'success',
+              classes: {
+                root: classes.snackbar
+              }
+            });
+          } else {
+            this.props.enqueueSnackbar(failMsg, {
+              variant: 'warning',
+              classes: {
+                root: classes.snackbar
+              }
+            });
+          }
+        });
+      this.handleVacationList();
     } catch (e) {
       console.log(e);
     }
@@ -131,34 +151,97 @@ class Dashboard extends React.Component {
       open: false
     }));
   };
+
+  handleCloseInfo = () => {
+    const { VacationInfoActions } = this.props;
+    //VacationInfoActions.reqArgDate({ argDate: '' });
+    VacationInfoActions.initialize();
+    this.setState(prevState => ({
+      openInfo: false
+    }));
+  };
+  eventClick = async (info) => {
+    info.jsEvent.preventDefault();
+    if (info.event.url) {
+      return false;
+    }
+    const { VacationInfoActions } = this.props;
+
+    await VacationInfoActions.reqGetVacationInfo(info.event.id)
+      .then(() => {
+        this.setState(prevState => ({
+          openInfo: true
+        }))
+      });
+  }
+
   render() {
-    const { calendarEvents, open, argDate } = this.state;
-    const { handleClose, handleDateClickCallback } = this;
-    //console.log('calendarEvents :', calendarEvents);
+    const { open, openInfo } = this.state;
+    const { vacationInfo } = this.props;
+    const { handleClose, handleCloseInfo, handleDateClickCallback, handleDateUpdateCallback } = this;
+    let reduxVacationList = vacationInfo.get("vacation_list");
+    let reduxCalendarList = vacationInfo.get("calendar_list");
+    let reduxVacationInfo = vacationInfo.get("vacation_info");
     return (
       <div className="demo-app">
         <div className="demo-app-top"></div>
         <div className="demo-app-calendar">
-          <FormDialog
-            open={open}
-            argDate={argDate}
-            handleClose={handleClose}
-            callback={handleDateClickCallback}
-          />
+          {open && (
+            <FormDialog
+              dialogProps={{
+                open: open,
+                onClose: handleClose,
+                "aria-labelledby": "form-dialog-title"
+              }}
+              titleProps={{ msg: "휴가 등록", msgBtn: "휴가 등록하기" }}
+              vacationProps={{
+                info: reduxVacationInfo.toJS(),
+                callback: handleDateClickCallback,
+                type: "insert"
+              }}
+            />
+          )}
+          {openInfo && (
+            <FormDialog
+              dialogProps={{
+                open: openInfo,
+                onClose: handleCloseInfo,
+                info: reduxVacationInfo.toJS(),
+                callback: handleDateUpdateCallback,
+                "aria-labelledby": "form-dialog-title"
+              }}
+            />
+          )}
           <FullCalendar
             defaultView="dayGridMonth"
             header={{
               left: 'prev,next today',
               center: 'title',
-              right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
+              //right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
+              right: 'dayGridMonth'
             }}
-            plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+            plugins={[googleCalendarPlugin, dayGridPlugin, timeGridPlugin, interactionPlugin]}
+            googleCalendarApiKey={'AIzaSyDUS_7n4Ot3ln7LI13h44ygoIx1u5rxODo'}
             ref={this.calendarComponentRef}
             weekends={this.state.calendarWeekends}
-            events={this.state.calendarEvents}
+            allDayText="종일"
+            //events={reduxCalendarList.toJS()}
+            eventSources={[
+              {
+                //googleCalendarId: 'ko.south_korea#holiday@group.v.calendar.google.com',
+                googleCalendarId: 'qansohiecib58ga9k1bmppvt5oi65b1q@import.calendar.google.com',
+                className: "koHolidays",
+                color: "#FF0000",
+                textColor: "#FFFFFF",
+                id: "google"
+              },
+              { events: reduxCalendarList.toJS() }
+            ]}
+            //googleCalendarId: 'ko.south_korea#holiday@group.v.calendar.google.com'
             dateClick={this.handleDateClick}
             locale={'ko'}
             timeZone={'local'}
+            eventClick={this.eventClick}
           /* views={{
             dayGridMonth: {
               // name of view

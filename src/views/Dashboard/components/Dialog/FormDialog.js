@@ -27,7 +27,7 @@ import {
   MuiPickersUtilsProvider,
   KeyboardDatePicker
 } from '@material-ui/pickers';
-import { getNowDate } from 'utils/kumcUtils';
+import { getNowDate, calendarFormat } from 'utils/kumcUtils';
 
 const styles = theme => ({
   root: {
@@ -91,32 +91,36 @@ const DialogTitle = withStyles(styles)(props => {
 });
 
 export default function FormDialog(props) {
+  const { dialogProps } = props;
   const classes = useStyles();
-  const [open, setOpen] = React.useState(props.open);
+  const [open, setOpen] = React.useState(dialogProps.open);
   const [maxWidth, setMaxWidth] = React.useState('sm');
-  const [values, setValues] = React.useState({
-    name: '',
-    type: 'all',
-    title: '',
-    body: ''
-  });
   const [check, setCheck] = React.useState({
-    checkedB: false
+    checkedB: (dialogProps.info.officialholiday === true || dialogProps.info.officialholiday === 'Y') ? true : false
+  });
+  console.log(dialogProps.info);
+  const [values, setValues] = React.useState({
+    id: dialogProps.info.vacationid,
+    name: dialogProps.info.username,
+    type: dialogProps.info.vacationtype,
+    title: dialogProps.info.title,
+    body: dialogProps.info.body
   });
 
   const getLang = props.lang || 'ko';
   let pickerFormat = 'yyyy-MM-dd';
   if (getLang === 'en') pickerFormat = 'MM-dd-yyyy';
 
-  const [selectedStartDate, handleStartDateChange] = useState(props.argDate);
-  const [selectedEndDate, handleEndDateChange] = useState(props.argDate);
+  const [selectedStartDate, handleStartDateChange] = useState(calendarFormat(dialogProps.info.startdate));
+  const [selectedEndDate, handleEndDateChange] = useState(calendarFormat(dialogProps.info.enddate));
+
   const [formatDate] = useState(pickerFormat);
   const [locale] = useState(getLang);
 
   const handleClose = () => {
     setValues({ ...values, name: '', type: 'all', title: '', body: '' });
     setCheck({ ...values, checkedB: false });
-    props.handleClose();
+    dialogProps.onClose();
   };
 
   const handleChange = name => event => {
@@ -133,7 +137,8 @@ export default function FormDialog(props) {
     //console.log('selectedStartDate :', selectedStartDate);
     //console.log('selectedEndDate :', selectedEndDate);
 
-    props.callback(
+    dialogProps.callback(
+      values.id,
       values.name,
       values.type,
       values.body,
@@ -145,12 +150,8 @@ export default function FormDialog(props) {
     handleClose();
   };
 
-  /*useEffect(() => {
-    handleStartDateChange(props.argDate);
-  }, [props.argDate, selectedStartDate]);*/
   useEffect(() => {
     return () => {
-      debugger;
       console.log('cleanup');
       setValues({ ...values, name: '', type: 'all', title: '', body: '' });
       setCheck({ ...values, checkedB: false });
@@ -160,7 +161,7 @@ export default function FormDialog(props) {
   return (
     <div>
       <Dialog
-        open={props.open}
+        open={dialogProps.open}
         onClose={handleClose}
         aria-labelledby="form-dialog-title"
         fullWidth={true}
