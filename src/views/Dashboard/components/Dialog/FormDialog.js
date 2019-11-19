@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { withStyles, makeStyles } from '@material-ui/core/styles';
-import Button from '@material-ui/core/Button';
+import Button from "components/custom/CustomButton";
 import TextField from '@material-ui/core/TextField';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
@@ -18,7 +18,6 @@ import Select from '@material-ui/core/Select';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Checkbox from '@material-ui/core/Checkbox';
 import 'date-fns';
-//import CustomDatePickers from '../DatePickers';
 import DateFnsUtils from '@date-io/date-fns';
 import enLocale from 'date-fns/locale/en-US';
 import koLocale from 'date-fns/locale/ko';
@@ -28,6 +27,7 @@ import {
   KeyboardDatePicker
 } from '@material-ui/pickers';
 import { getNowDate, calendarFormat } from 'utils/kumcUtils';
+import Close from "@material-ui/icons/Close";
 
 const styles = theme => ({
   root: {
@@ -66,6 +66,15 @@ const useStyles = makeStyles(theme => ({
     justify: 'space-around'
     /* width: '60%', */
     /* display:'block' */
+  },
+  closeButton: {
+    position: 'absolute',
+    right: theme.spacing(1),
+    top: theme.spacing(1),
+    color: theme.palette.grey[500]
+  },
+  snackbar: {
+    fontFamily: "'Noto Sans KR', sans-serif!important"
   }
 }));
 const localeMap = {
@@ -91,28 +100,27 @@ const DialogTitle = withStyles(styles)(props => {
 });
 
 export default function FormDialog(props) {
-  const { dialogProps } = props;
+  const { dialogProps, titleProps, vacationProps } = props;
   const classes = useStyles();
   const [open, setOpen] = React.useState(dialogProps.open);
   const [maxWidth, setMaxWidth] = React.useState('sm');
   const [check, setCheck] = React.useState({
-    checkedB: (dialogProps.info.officialholiday === true || dialogProps.info.officialholiday === 'Y') ? true : false
+    checkedB: (vacationProps.info.officialholiday === true || vacationProps.info.officialholiday === 'Y') ? true : false
   });
-  console.log(dialogProps.info);
   const [values, setValues] = React.useState({
-    id: dialogProps.info.vacationid,
-    name: dialogProps.info.username,
-    type: dialogProps.info.vacationtype,
-    title: dialogProps.info.title,
-    body: dialogProps.info.body
+    id: vacationProps.info.vacationid,
+    name: vacationProps.info.username,
+    type: vacationProps.info.vacationtype,
+    title: vacationProps.info.title,
+    body: vacationProps.info.body
   });
 
   const getLang = props.lang || 'ko';
   let pickerFormat = 'yyyy-MM-dd';
   if (getLang === 'en') pickerFormat = 'MM-dd-yyyy';
 
-  const [selectedStartDate, handleStartDateChange] = useState(calendarFormat(dialogProps.info.startdate));
-  const [selectedEndDate, handleEndDateChange] = useState(calendarFormat(dialogProps.info.enddate));
+  const [selectedStartDate, handleStartDateChange] = useState(calendarFormat(vacationProps.info.startdate));
+  const [selectedEndDate, handleEndDateChange] = useState(calendarFormat(vacationProps.info.enddate));
 
   const [formatDate] = useState(pickerFormat);
   const [locale] = useState(getLang);
@@ -132,12 +140,7 @@ export default function FormDialog(props) {
 
   const handleSubmit = event => {
     event.preventDefault();
-    //console.log('values :', values);
-    //console.log('check :', check.checkedB);
-    //console.log('selectedStartDate :', selectedStartDate);
-    //console.log('selectedEndDate :', selectedEndDate);
-
-    dialogProps.callback(
+    vacationProps.callback(
       values.id,
       values.name,
       values.type,
@@ -150,6 +153,11 @@ export default function FormDialog(props) {
     handleClose();
   };
 
+  const handleDelete = event => {
+    event.preventDefault();
+    vacationProps.callbackDelete(values);
+    handleClose();
+  };
   useEffect(() => {
     return () => {
       console.log('cleanup');
@@ -167,7 +175,10 @@ export default function FormDialog(props) {
         fullWidth={true}
         maxWidth={maxWidth}>
         <DialogTitle id="customized-dialog-title" onClose={handleClose}>
-          Modal title
+          {titleProps.msg}
+          <IconButton aria-label="Close" className={classes.closeButton} onClick={dialogProps.onClose}>
+            <Close />
+          </IconButton>
         </DialogTitle>
         <DialogContent dividers>
           <DialogContentText></DialogContentText>
@@ -266,14 +277,24 @@ export default function FormDialog(props) {
             </FormControl>
           </form>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={handleClose} color="primary">
-            취소
-          </Button>
-          <Button onClick={handleSubmit} color="primary">
-            확인
-          </Button>
-        </DialogActions>
+        {vacationProps.type === "insert" && (
+          <DialogActions style={{ justifyContent: "center" }}>
+            <Button variant="contained" onClick={handleSubmit} style={{ width: "50%" }} color="primary">
+              {titleProps.msgBtn}
+            </Button>
+          </DialogActions>
+        )}
+
+        {vacationProps.type === "patch" && (
+          <DialogActions style={{ justifyContent: "space-evenly", margin: "15px 4px" }}>
+            <Button variant="contained" onClick={handleDelete} style={{ flex: "0.3" }} color="danger">
+              {titleProps.msgBtnDelete}
+            </Button>
+            <Button variant="contained" onClick={handleSubmit} style={{ flex: "0.3" }} color="primary">
+              {titleProps.msgBtn}
+            </Button>
+          </DialogActions>
+        )}
       </Dialog>
     </div>
   );

@@ -106,7 +106,34 @@ class Dashboard extends React.Component {
       console.log(e);
     }
   };
-
+  handleDateDeleteCallback = async (values) => {
+    const { VacationInfoActions, classes } = this.props;
+    try {
+      const successMsg = values.name + '님의 휴가가 삭제되었습니다';
+      const failMsg = '휴가 삭제가 실패하였습니다';
+      await VacationInfoActions.reqDeleteVacation(values.id)
+        .then((result) => {
+          if (result.data === true) {
+            this.props.enqueueSnackbar(successMsg, {
+              variant: 'success',
+              classes: {
+                root: classes.snackbar
+              }
+            });
+          } else {
+            this.props.enqueueSnackbar(failMsg, {
+              variant: 'warning',
+              classes: {
+                root: classes.snackbar
+              }
+            });
+          }
+        });
+      this.handleVacationList();
+    } catch (e) {
+      console.log(e);
+    }
+  }
   handleDateUpdateCallback = async (id, name, type, body, isCheck, startDate, endDate, getLang) => {
     const { VacationInfoActions, classes } = this.props;
     const values =
@@ -178,7 +205,7 @@ class Dashboard extends React.Component {
   render() {
     const { open, openInfo } = this.state;
     const { vacationInfo } = this.props;
-    const { handleClose, handleCloseInfo, handleDateClickCallback, handleDateUpdateCallback } = this;
+    const { handleClose, handleCloseInfo, handleDateClickCallback, handleDateUpdateCallback, handleDateDeleteCallback } = this;
     let reduxVacationList = vacationInfo.get("vacation_list");
     let reduxCalendarList = vacationInfo.get("calendar_list");
     let reduxVacationInfo = vacationInfo.get("vacation_info");
@@ -206,9 +233,18 @@ class Dashboard extends React.Component {
               dialogProps={{
                 open: openInfo,
                 onClose: handleCloseInfo,
+                "aria-labelledby": "form-dialog-title"
+              }}
+              titleProps={{
+                msg: "휴가 정보 수정",
+                msgBtn: "휴가 정보 수정하기",
+                msgBtnDelete: "휴가 삭제하기"
+              }}
+              vacationProps={{
                 info: reduxVacationInfo.toJS(),
                 callback: handleDateUpdateCallback,
-                "aria-labelledby": "form-dialog-title"
+                callbackDelete: handleDateDeleteCallback,
+                type: "patch"
               }}
             />
           )}
