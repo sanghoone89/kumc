@@ -160,7 +160,7 @@ export default function FormDialog(props) {
   };
   useEffect(() => {
     return () => {
-      console.log('cleanup');
+      //console.log('cleanup');
       setValues({ ...values, name: '', type: 'all', title: '', body: '' });
       setCheck({ ...values, checkedB: false });
     }

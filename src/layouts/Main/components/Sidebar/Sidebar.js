@@ -52,7 +52,12 @@ const Sidebar = props => {
       title: 'Users',
       href: '/users',
       icon: <PeopleIcon />
-    }
+    },
+    {
+      title: 'Vacation',
+      href: '/vacation',
+      icon: <PeopleIcon />
+    },
     /* {
       title: 'Products',
       href: '/products',

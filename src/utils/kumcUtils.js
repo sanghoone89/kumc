@@ -130,6 +130,12 @@ export function getMonth(locale, date) {
   return mm + '월';
 }
 
+export function protocolTimeToFormat(date) {
+  if (date === "") return "";
+  const format = "YYYY-MM-DD HH:mm:ss";
+  return moment(date).format(format);
+}
+
 export function calendarFormat(date, type) {
   return moment(date).format();
 }
@@ -162,5 +168,5 @@ export function calculatorDate(startdate, enddate) {
   let date1 = new Date(startdate);
   let date2 = new Date(enddate);
 
-  console.log(((date2.getTime() - date1.getTime()) / 1000 / 24 / 60 / 60) + 1);
+  //console.log(((date2.getTime() - date1.getTime()) / 1000 / 24 / 60 / 60) + 1);
 }

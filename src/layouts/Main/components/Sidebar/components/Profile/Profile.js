@@ -27,9 +27,9 @@ const Profile = props => {
   const classes = useStyles();
 
   const user = {
-    name: 'saehee',
+    //name: 'saehee',
     avatar: '/logo192.png',
-    //avatar: '/images/avatars/saehee.jpg',
+    //avatar: '/images/avatars/hayeon.jpg',
     bio: '마취통증의학과'
   };
 

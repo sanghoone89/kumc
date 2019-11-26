@@ -49,7 +49,7 @@ class Dashboard extends React.Component {
   }
   handleDateClick = async (arg) => {
     const { VacationInfoActions } = this.props;
-    console.log(arg);
+    //console.log(arg);
     await VacationInfoActions.setStartInit({
       'username': '',
       'vacationtype': 'all',

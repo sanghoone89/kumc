@@ -3,7 +3,7 @@ import { Switch, Redirect } from 'react-router-dom';
 import { RouteWithLayout } from './components';
 import { Main as MainLayout } from './layouts';
 
-import { Dashboard as DashboardView, UserList as UserListView } from './views';
+import { Dashboard as DashboardView, UserList as UserListView, Vacation as VacationView} from './views';
 
 const Routes = () => {
   return (
@@ -20,6 +20,12 @@ const Routes = () => {
         exact
         layout={MainLayout}
         path="/users"
+      />
+      <RouteWithLayout
+        component={VacationView}
+        exact
+        layout={MainLayout}
+        path="/vacation"
       />
     </Switch>
   );

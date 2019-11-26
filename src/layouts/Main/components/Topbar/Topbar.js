@@ -31,7 +31,8 @@ const Topbar = props => {
     <AppBar {...rest} className={clsx(classes.root, className)}>
       <Toolbar>
         <RouterLink to="/">
-          <img alt="Logo" src="/images/logos/logo--white.svg" />
+          {/* <img alt="Logo" src="/images/logos/logo--white.svg" /> */}
+          {/* <img alt="Logo" src="/images/logos/logo.jpg" /> */}
         </RouterLink>
         <div className={classes.flexGrow} />
         <Hidden mdDown>

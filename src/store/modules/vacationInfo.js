@@ -13,6 +13,7 @@ const VACATION_LIST = 'vacations/VACATION_LIST';
 const VACATION_INFO = 'vacations/VACATION_INFO';
 const VACATION_UPDATE = 'vacations/VACATION_UPDATE';
 const VACATION_DELETE = 'vacations/VACATION_DELETE';
+const VACATION_DETAIL = 'vacations/VACATION_DETAIL';
 
 function insertVacation(vacation) {
     const body = makeVacation(vacation);
@@ -36,6 +37,20 @@ function deleteVacation(vacationid) {
     return axios.delete(`/api/vacations/${vacationid}`);
 }
 
+function getVacationInfoCondition(username, startdate, enddate, page, rows) {
+    const params = {
+        username: username,
+        startdate: startdate,
+        enddate: enddate,
+        page: page,
+        rows: rows,
+    };
+    const headers = {
+        "Content-Type": "application/json"
+    }
+    return axios.post('/api/vacations/detail', params);
+}
+
 export const initialize = createAction(INITIALIZE);
 export const setStartInit = createAction(SET_STARTINIT);
 //export const reqArgDate = createAction(VACATION_ARG_DATE);
@@ -44,6 +59,7 @@ export const reqGetVacationListInfo = createAction(VACATION_LIST, getVacationLis
 export const reqGetVacationInfo = createAction(VACATION_INFO, getVacationInfo);
 export const reqUpdateVacation = createAction(VACATION_UPDATE, updateVacation);
 export const reqDeleteVacation = createAction(VACATION_DELETE, deleteVacation);
+export const reqGetVacationInfoCondition = createAction(VACATION_DETAIL, getVacationInfoCondition);
 
 const initialState = Map({
     vacation_list: List(),
@@ -60,7 +76,11 @@ const initialState = Map({
         nickname: "",
         phonenumber: "",
         position: ""
-    })
+    }),
+    vacation_detail_list: List(),
+    vacation_detail_list_total: 0,
+    vacation_total_holiday_false: 0,
+    vacation_total_holiday_true: 0
 });
 
 export default handleActions({
@@ -84,6 +104,34 @@ export default handleActions({
         }
         return state.set('vacation_info', fromJS(temp));
     },
+    ...pender({
+        type: VACATION_DETAIL,
+        onSuccess: (state, action) => {
+            const { body } = action.payload.data;
+            let sumHolidayFalse = 0;
+            let sumHolidayTrue = 0;
+
+            let temp = body.detail_list.map(obj => ({
+                ...obj,
+                vacationtype: (obj.vacationtype === 'all')
+                    ? "종일"
+                    : (obj.vacationtype === 'am')
+                        ? "오전"
+                        : "오후"
+            }));
+
+            let calcHolidayTrue = body.detail_list.filter(obj => obj.officialholiday === 'Y');
+            calcHolidayTrue.forEach(obj => sumHolidayTrue += Number(obj.calc));
+
+            let calcHolidayFalse = body.detail_list.filter(obj => obj.officialholiday === 'N');
+            calcHolidayFalse.forEach(obj => sumHolidayFalse += Number(obj.calc));
+
+            return state.set('vacation_detail_list', fromJS(temp))
+                .set('vacation_detail_list_total', fromJS(body.total))
+                .set('vacation_total_holiday_false', sumHolidayFalse)
+                .set('vacation_total_holiday_true', sumHolidayTrue);
+        }
+    }),
     ...pender({
         type: VACATION_UPDATE,
         onSuccess: (state, action) => {
