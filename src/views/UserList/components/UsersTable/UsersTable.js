@@ -29,8 +29,8 @@ class UsersTable extends React.Component {
       print: false,
       download: false,
       elevation: 1,
-      rowsPerPage: 30,
-      rowsPerPageOptions: [30, 60, 120],
+      rowsPerPage: 50,
+      rowsPerPageOptions: [50, 100],
       onRowClick: this.rowClick,
       customToolbar: () => {
         return (
@@ -50,7 +50,7 @@ class UsersTable extends React.Component {
         pagination: {
           next: "Next Page",
           previous: "Previous Page",
-          rowsPerPage: "Rows per page:",
+          rowsPerPage: "",
           displayRows: "of",
         },
         filter: {

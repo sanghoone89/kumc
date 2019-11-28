@@ -5,6 +5,8 @@ import { pender } from 'redux-pender';
 import { makeVacation } from "utils/makeVacationComm";
 import { calendarFormat } from "utils/kumcUtils";
 import axios from "axios";
+import moment from 'moment';
+
 const INITIALIZE = 'vacations/INITIALIZE';
 const SET_STARTINIT = 'vacations/VACATION_STARTINIT';
 //const VACATION_ARG_DATE = 'vacation/VACATION_ARG_DATE';
@@ -17,24 +19,24 @@ const VACATION_DETAIL = 'vacations/VACATION_DETAIL';
 
 function insertVacation(vacation) {
     const body = makeVacation(vacation);
-    return axios.post('/api/vacations', body);
+    return axios.post(process.env.REACT_APP_URL + '/api/vacations', body);
 }
 
 function getVacationListInfo() {
-    return axios.get('/api/vacations');
+    return axios.get(process.env.REACT_APP_URL + '/api/vacations');
 }
 
 function getVacationInfo(vacationid) {
-    return axios.get(`/api/vacations/${vacationid}`);
+    return axios.get(process.env.REACT_APP_URL + `/api/vacations/${vacationid}`);
 }
 
 function updateVacation(vacation) {
     const body = makeVacation(vacation);
-    return axios.patch(`/api/vacations/${vacation.values.vacationid}`, body);
+    return axios.patch(process.env.REACT_APP_URL + `/api/vacations/${vacation.values.vacationid}`, body);
 }
 
 function deleteVacation(vacationid) {
-    return axios.delete(`/api/vacations/${vacationid}`);
+    return axios.delete(process.env.REACT_APP_URL + `/api/vacations/${vacationid}`);
 }
 
 function getVacationInfoCondition(username, startdate, enddate, page, rows) {
@@ -48,7 +50,7 @@ function getVacationInfoCondition(username, startdate, enddate, page, rows) {
     const headers = {
         "Content-Type": "application/json"
     }
-    return axios.post('/api/vacations/detail', params);
+    return axios.post(process.env.REACT_APP_URL + '/api/vacations/detail', params);
 }
 
 export const initialize = createAction(INITIALIZE);
@@ -113,6 +115,8 @@ export default handleActions({
 
             let temp = body.detail_list.map(obj => ({
                 ...obj,
+                startdate: moment(obj.startdate).format("YYYY-MM-DD"),
+                enddate: moment(obj.enddate).format("YYYY-MM-DD"),
                 vacationtype: (obj.vacationtype === 'all')
                     ? "종일"
                     : (obj.vacationtype === 'am')

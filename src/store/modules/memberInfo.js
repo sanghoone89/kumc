@@ -12,21 +12,21 @@ const MEMBER_DELETE = 'members/MEMBER_DELETE';
 
 function insertMember(values) {
     const body = makeMember(values.username, values.nickname, values.phonenumber, values.position);
-    return axios.post('/api/members', body);
+    return axios.post(process.env.REACT_APP_URL + '/api/members', body);
 }
 
 function updateMember(values) {
     const body = makeMember(values.username, values.nickname, values.phonenumber, values.position);
-    return axios.patch(`/api/members/${values.memberid}`, body);
+    return axios.patch(process.env.REACT_APP_URL + `/api/members/${values.memberid}`, body);
 }
 
 function deleteMember(values) {
-    return axios.delete(`/api/members/${values.memberid}`);
+    return axios.delete(process.env.REACT_APP_URL + `/api/members/${values.memberid}`);
 }
 
 function getMemberListInfo() {
     const url = process.env.REACT_APP_URL;
-    return axios.get('/api/members');
+    return axios.get(process.env.REACT_APP_URL + '/api/members');
 }
 
 export const reqInsertMember = createAction(MEMBER_INSERT, insertMember);

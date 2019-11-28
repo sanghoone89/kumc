@@ -19,8 +19,6 @@ class VacationTable extends React.Component {
                 MUIDataTable: {
                     responsiveScrollMaxHeight: {
                         maxHeight: `${(window.innerHeight - 400) > 400 ? (window.innerHeight - 400) : 400}px`,
-                        //maxHeight :  `calc(${window.innerHeight}px - ${(window.innerHeight - 400) > 400 ? (window.innerHeight - 400) : 400}px)` ,
-                        //maxHeight :  this.props.classes.dataMobile ,
                     }
                 },
                 MUIDataTableHeadCell: {
@@ -120,7 +118,7 @@ class VacationTable extends React.Component {
                 pagination: {
                     next: "Next Page",
                     previous: "Previous Page",
-                    rowsPerPage: "Rows per page:",
+                    rowsPerPage: "",
                     displayRows: "of",
                 },
                 filter: {

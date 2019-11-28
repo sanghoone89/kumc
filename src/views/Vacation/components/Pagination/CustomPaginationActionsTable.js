@@ -12,7 +12,7 @@ const useStyles1 = makeStyles(theme => ({
     root: {
         flexShrink: 0,
         color: theme.palette.text.secondary,
-        marginLeft: theme.spacing(2.5),
+        //marginLeft: theme.spacing(2.5),
     },
     toolbar: {
         flexWrap: 'wrap',
@@ -107,7 +107,7 @@ function CustomPaginationActionsTable(props) {
                 <TablePagination
                     colSpan={3}
                     count={props.rowsCount}
-                    //labelRowsPerPage=''
+                    labelRowsPerPage=''
                     rowsPerPage={rowsPerPage}
                     rowsPerPageOptions={[50, 100]}
                     page={page}
