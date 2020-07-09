@@ -56,8 +56,8 @@ export default function DocumentMenu(props) {
         pickerFormat = 'MM-dd-yyyy';
 
     let initStartDate = new Date();
-    const [selectedStartDate, handleStartDateChange] = useState(new Date(2019, 2, 1)); //이렇게 해야 2019-03-01로 나옴
-    const [selectedEndDate, handleEndDateChange] = useState(new Date(2020, 1, 29)); //이렇게 해야 2019-02-29로 나옴
+    const [selectedStartDate, handleStartDateChange] = useState(new Date(2020, 2, 1)); //이렇게 해야 2020-03-01로 나옴
+    const [selectedEndDate, handleEndDateChange] = useState(new Date(2021, 1, 28)); //이렇게 해야 2021-02-28로 나옴
     const [formatDate] = useState(pickerFormat);
     const [locale] = useState(getLang);
 

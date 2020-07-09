@@ -176,8 +176,8 @@ export default handleActions({
                 end: calendarFormat(obj.enddate, obj.vacationtype),
                 //allDay: (obj.vacationtype === 'all') ? true : false
                 allDay: false,
-                backgroundColor: (obj.position === 'Anesthesiologists') ? '#3788d8' : 'green',
-                borderColor: (obj.position === 'Anesthesiologists') ? '#3788d8' : 'green',
+                backgroundColor: (obj.position === 'Anesthesiologists') ? '#3788d8' : (obj.position === 'Resident') ? 'green' : 'purple',
+                borderColor: (obj.position === 'Anesthesiologists') ? '#3788d8' : (obj.position === 'Resident') ? 'green' : 'purple',
             }));
             return state.set('vacation_list', fromJS(data))
                 .set('calendar_list', fromJS(temp));
